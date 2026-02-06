@@ -99,3 +99,21 @@ body {
 .text-red { color: #ff4d4d; }
 input { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; margin-bottom: 10px; border-radius: 8px; box-sizing: border-box;}
 .btn-text { background: none; border: none; color: #555; width: 100%; cursor: pointer; margin-top: 10px;}
+.redemption-zone {
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px dashed #333;
+    margin-bottom: 20px;
+}
+
+.redemption-zone input {
+    margin-bottom: 8px;
+    text-align: center;
+    border-color: #444;
+}
+
+#pPoints.gold-text {
+    font-size: 28px;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
