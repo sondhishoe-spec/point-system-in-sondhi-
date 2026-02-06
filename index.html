@@ -1,36 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sondhi | Executive Profile System</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-</head>
-<body>
-
-    <div id="dashboard">
-        <header class="main-header">
-            <div class="header-container">
-                <div>
-                    <h1 class="brand-name">Sondhi Point System</h1>
-                    <p class="brand-subtitle">Membership Terminal</p>
-                </div>
-                <div class="action-buttons">
-                    <button onclick="toggleModal('regModal')" class="btn-primary">+ Register</button>
-                </div>
-            </div>
-        </header>
-
-        <main class="content">
-            <div class="search-container">
-                <input id="searchBar" onkeyup="render()" type="text" placeholder="Search members...">
-            </div>
-            <div id="customerGrid" class="grid"></div>
-        </main>
-    </div>
-
-    <div id="profileModal" class="modal-overlay hidden">
+<div id="profileModal" class="modal-overlay hidden">
         <div class="modal-content profile-view">
             <div class="profile-header">
                 <span id="pTier" class="tier-badge"></span>
@@ -45,13 +13,18 @@
 
             <div class="profile-stats-grid">
                 <div class="stat-box">
-                    <small>CURRENT POINTS</small>
-                    <p id="pPoints"></p>
+                    <small>CURRENT WALLET</small>
+                    <p id="pPoints" class="gold-text"></p>
                 </div>
                 <div class="stat-box">
                     <small>TOTAL SPENT</small>
                     <p id="pSpent"></p>
                 </div>
+            </div>
+
+            <div class="redemption-zone">
+                <input id="redeemAmt" type="number" placeholder="Points to redeem">
+                <button onclick="processRedemption()" class="btn-secondary full-width" style="border-color: #ff4d4d; color: #ff4d4d;">Apply Redemption</button>
             </div>
 
             <h3 class="section-title">Activity Timeline</h3>
@@ -60,122 +33,36 @@
             <button onclick="toggleModal('profileModal')" class="btn-primary full-width">Back to Terminal</button>
         </div>
     </div>
+<script>
+    // ... (Keep existing DB and Render logic) ...
 
-    <div id="transModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 class="gold-text">Log Purchase</h2>
-            <input id="billAmount" type="number" placeholder="Enter Bill Amount">
-            <button onclick="processPurchase()" class="btn-primary full-width">Confirm Points</button>
-            <button onclick="toggleModal('transModal')" class="btn-text">Cancel</button>
-        </div>
-    </div>
+    function processRedemption() {
+        const amt = parseFloat(document.getElementById('redeemAmt').value);
+        const u = db[activeIndex];
 
-    <div id="regModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 class="gold-text">New Member</h2>
-            <input id="nName" type="text" placeholder="Full Name">
-            <input id="nPhone" type="text" placeholder="WhatsApp Number">
-            <button onclick="addCust()" class="btn-primary full-width">Join System</button>
-            <button onclick="toggleModal('regModal')" class="btn-text">Cancel</button>
-        </div>
-    </div>
-
-    <script>
-        let db = JSON.parse(localStorage.getItem('sondhi_v17')) || [];
-        let activeIndex = null;
-        const POINT_RATE = 0.10; 
-
-        function getTier(totalEarned) {
-            if (totalEarned >= 2000) return { n: 'Platinum', c: 'tier-platinum' };
-            if (totalEarned >= 1000) return { n: 'Gold', c: 'tier-gold' };
-            return { n: 'Silver', c: 'tier-silver' };
+        if (!amt || amt <= 0) {
+            alert("Please enter a valid amount.");
+            return;
         }
 
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
-
-        function openProfile(i) {
-            activeIndex = i;
-            const u = db[i];
-            const t = getTier(u.totalEarned);
-            
-            document.getElementById('pName').innerText = u.name;
-            document.getElementById('pAvatar').innerText = u.name[0].toUpperCase();
-            document.getElementById('pPhone').innerText = u.phone;
-            document.getElementById('pPoints').innerText = u.pts.toFixed(0);
-            document.getElementById('pSpent').innerText = (u.totalSpent || 0).toLocaleString();
-            
-            const tierBadge = document.getElementById('pTier');
-            tierBadge.innerText = t.n;
-            tierBadge.className = `tier-badge ${t.c}`;
-
-            const hist = document.getElementById('pHistory');
-            hist.innerHTML = u.history.slice().reverse().map(h => `
-                <div class="history-item">
-                    <span>${h.date} <br><small>${h.type}</small></span>
-                    <span class="${h.amt >= 0 ? 'text-gold' : 'text-red'}">${h.amt > 0 ? '+' : ''}${h.amt.toFixed(0)}</span>
-                </div>
-            `).join('');
-
-            toggleModal('profileModal');
+        if (amt > u.pts) {
+            alert("Insufficient points! Customer only has " + u.pts.toFixed(0));
+            return;
         }
 
-        function openTrans(i, e) {
-            e.stopPropagation(); 
-            activeIndex = i;
-            toggleModal('transModal');
-        }
-
-        function processPurchase() {
-            const amt = parseFloat(document.getElementById('billAmount').value);
-            if(amt > 0) {
-                const pts = amt * POINT_RATE;
-                db[activeIndex].pts += pts;
-                db[activeIndex].totalEarned += pts;
-                db[activeIndex].totalSpent = (db[activeIndex].totalSpent || 0) + amt;
-                db[activeIndex].history.push({date: new Date().toLocaleDateString(), type: `Purchase (${amt})`, amt: pts});
-                document.getElementById('billAmount').value = '';
-                toggleModal('transModal');
-                render();
-            }
-        }
-
-        function addCust() {
-            const n = document.getElementById('nName').value;
-            const p = document.getElementById('nPhone').value;
-            if(n && p) {
-                db.push({name: n, phone: p, pts: 0, totalEarned: 0, totalSpent: 0, history: [{date: new Date().toLocaleDateString(), type: 'Welcome', amt: 0}]});
-                document.getElementById('nName').value = '';
-                document.getElementById('nPhone').value = '';
-                toggleModal('regModal');
-                render();
-            }
-        }
-
-        function render() {
-            const grid = document.getElementById('customerGrid');
-            const q = document.getElementById('searchBar').value.toLowerCase();
-            grid.innerHTML = '';
-            db.forEach((u, i) => {
-                if(u.name.toLowerCase().includes(q)) {
-                    const t = getTier(u.totalEarned);
-                    grid.innerHTML += `
-                        <div class="card" onclick="openProfile(${i})">
-                            <div class="card-header">
-                                <span class="tier-badge ${t.c}">${t.n}</span>
-                                <span class="gold-text">ID: 00${i+1}</span>
-                            </div>
-                            <h3>${u.name}</h3>
-                            <div class="stats">
-                                <div><small>WALLET</small><p>${u.pts.toFixed(0)}</p></div>
-                                <button onclick="openTrans(${i}, event)" class="btn-mini">💰 ADD</button>
-                            </div>
-                        </div>
-                    `;
-                }
+        if (confirm(`Redeem ${amt} points from ${u.name}?`)) {
+            db[activeIndex].pts -= amt;
+            db[activeIndex].history.push({
+                date: new Date().toLocaleDateString(),
+                type: 'Redemption (Used)',
+                amt: -amt
             });
-            localStorage.setItem('sondhi_v17', JSON.stringify(db));
+            
+            document.getElementById('redeemAmt').value = '';
+            render();
+            openProfile(activeIndex); // Refresh profile view
         }
-        render();
-    </script>
-</body>
-</html>
+    }
+    
+    // ... (Rest of your script functions) ...
+</script>
