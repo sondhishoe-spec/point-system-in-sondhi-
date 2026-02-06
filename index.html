@@ -216,7 +216,8 @@
 
         function sendWhatsApp() {
             const u = db[activeIdx];
-            const msg = `Hello ${u.name}! Your Sondhi System balance is ${u.pts.toFixed(0)} points. Visit us again soon!`;
+            const msg = `Assalamu Alaikum ${u.name}!​Welcome to you on behalf of Sondhi Shoe Gallery.
+            ​For purchasing your valuable goods, you have received a total of ${u.pts.toFixed(0)} points. Visit us again soon Thank you!`;
             window.open(`https://wa.me/${u.phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
