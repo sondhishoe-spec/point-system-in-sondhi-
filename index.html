@@ -3,69 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loyalty Point System</title>
+    <title>Sondhi Shoe Club | Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tier-silver { background: #E5E7EB; color: #4B5563; }
+        .tier-gold { background: #FEF3C7; color: #92400E; }
+        .tier-platinum { background: #ECE9FF; color: #4338CA; border: 1px solid #C7D2FE; }
+    </style>
 </head>
-<body class="bg-gray-100 p-5">
-    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4 text-center">ShoeStore Rewards 👟</h1>
-        
-        <div class="mb-8 p-4 border rounded-lg bg-gray-50">
-            <h2 class="font-semibold mb-2">Register New Customer</h2>
-            <input id="custName" type="text" placeholder="Customer Name" class="w-full mb-2 p-2 border rounded">
-            <input id="custPhone" type="text" placeholder="Phone Number" class="w-full mb-2 p-2 border rounded">
-            <button onclick="addCustomer()" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Add Customer</button>
+<body class="bg-slate-50 min-h-screen">
+
+    <nav class="sticky top-0 z-10 bg-black text-white p-4 shadow-lg">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black tracking-tight">SONDHI CLUB 👟</h1>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="exportToExcel()" class="text-xs border border-gray-600 px-3 py-2 rounded-lg hover:bg-white hover:text-black transition">Backup CSV</button>
+                <button onclick="toggleModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-500">+ Member</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-5xl mx-auto p-4">
+        <div class="my-6">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
+                <input id="searchBar" onkeyup="render()" type="text" placeholder="Search customer by name or phone..." 
+                       class="w-full pl-10 pr-4 py-4 bg-white border-0 shadow-sm rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-lg">
+            </div>
         </div>
 
-        <h2 class="font-semibold mb-2">Customer Database</h2>
-        <div id="customerList" class="space-y-4">
+        <div id="customerList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             </div>
     </div>
 
+    <div id="modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6">New Membership</h2>
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Full Name</label>
+            <input id="custName" type="text" class="w-full mb-4 p-3 bg-gray-50 border rounded-xl">
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Phone Number</label>
+            <input id="custPhone" type="text" class="w-full mb-8 p-3 bg-gray-50 border rounded-xl">
+            <div class="flex gap-3">
+                <button onclick="toggleModal()" class="flex-1 p-3 text-gray-500 font-semibold">Cancel</button>
+                <button onclick="addCustomer()" class="flex-1 bg-black text-white p-3 rounded-xl font-bold shadow-lg">Save Member</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+        let customers = JSON.parse(localStorage.getItem('sondhi_v2_db')) || [];
+
+        function getTier(pts) {
+            if (pts >= 1500) return { name: 'Platinum', class: 'tier-platinum' };
+            if (pts >= 500) return { name: 'Gold', class: 'tier-gold' };
+            return { name: 'Silver', class: 'tier-silver' };
+        }
 
         function render() {
             const list = document.getElementById('customerList');
+            const search = document.getElementById('searchBar').value.toLowerCase();
             list.innerHTML = '';
+
             customers.forEach((c, index) => {
-                list.innerHTML += `
-                    <div class="p-4 border rounded shadow-sm bg-white">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="font-bold">${c.name}</p>
-                                <p class="text-sm text-gray-500">${c.phone}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xl font-bold text-green-600">${c.points} pts</p>
-                                <p class="text-xs text-gray-400">Value: $${(c.points / 20).toFixed(2)}</p>
+                if(c.name.toLowerCase().includes(search) || c.phone.includes(search)) {
+                    const tier = getTier(c.points);
+                    list.innerHTML += `
+                        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <span class="text-[10px] font-bold uppercase tracking-widest ${tier.class} px-2 py-1 rounded-md mb-2 inline-block">${tier.name}</span>
+                                        <h3 class="text-xl font-bold text-gray-800">${c.name}</h3>
+                                        <p class="text-gray-400 text-sm">${c.phone}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-3xl font-black text-blue-600">${c.points}</p>
+                                        <p class="text-[10px] text-gray-400 font-bold uppercase">Points</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-2 mb-6">
+                                    <input id="amt-${index}" type="number" placeholder="Amt" class="w-full p-2 bg-gray-50 border rounded-lg text-sm outline-none focus:border-blue-400">
+                                    <button onclick="updatePoints(${index}, 'add')" class="bg-black text-white px-4 rounded-lg text-xs font-bold">ADD</button>
+                                    <button onclick="updatePoints(${index}, 'redeem')" class="bg-red-50 text-red-600 px-3 rounded-lg text-xs font-bold border border-red-100">USE</button>
+                                </div>
+
+                                <div class="space-y-2 border-t pt-4">
+                                    <p class="text-[10px] font-black text-gray-300 uppercase italic">Activity Log</p>
+                                    ${c.history.slice(-2).reverse().map(h => `
+                                        <div class="flex justify-between text-[11px] font-medium">
+                                            <span class="text-gray-500">${h.date}</span>
+                                            <span class="${h.type === 'Earned' ? 'text-green-600' : 'text-red-500'}">${h.type} ${h.pts}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
-                        <div class="mt-3 flex gap-2">
-                            <input id="amt-${index}" type="number" placeholder="Spend Amt" class="border p-1 text-sm w-full rounded">
-                            <button onclick="updatePoints(${index})" class="bg-black text-white px-3 py-1 text-sm rounded">Add Points</button>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
             });
-            localStorage.setItem('customers', JSON.stringify(customers));
+            localStorage.setItem('sondhi_v2_db', JSON.stringify(customers));
         }
+
+        // Functions for Modal, Add, Update, Export remain the same but use 'sondhi_v2_db'
+        function toggleModal() { document.getElementById('modal').classList.toggle('hidden'); }
 
         function addCustomer() {
             const name = document.getElementById('custName').value;
             const phone = document.getElementById('custPhone').value;
             if(name && phone) {
-                customers.push({name, phone, points: 0});
+                customers.push({name, phone, points: 0, history: [{date: new Date().toLocaleDateString(), type: 'Joined', pts: 0}]});
+                document.getElementById('custName').value = '';
+                document.getElementById('custPhone').value = '';
+                toggleModal();
                 render();
             }
         }
 
-        function updatePoints(index) {
-            const amt = document.getElementById(`amt-${index}`).value;
-            if(amt) {
-                customers[index].points += Math.floor(parseFloat(amt));
-                render();
+        function updatePoints(index, type) {
+            const val = document.getElementById(`amt-${index}`).value;
+            if(!val) return;
+            const pts = Math.floor(parseFloat(val));
+            const date = new Date().toLocaleDateString();
+
+            if(type === 'add') {
+                customers[index].points += pts;
+                customers[index].history.push({date, type: 'Earned', pts});
+            } else {
+                if(customers[index].points >= pts) {
+                    customers[index].points -= pts;
+                    customers[index].history.push({date, type: 'Used', pts});
+                } else { alert("Insufficient points!"); }
             }
+            render();
+        }
+
+        function exportToExcel() {
+            let csv = "Name,Phone,Points,Tier\n";
+            customers.forEach(c => { csv += `${c.name},${c.phone},${c.points},${getTier(c.points).name}\n`; });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'sondhi_members.csv'; a.click();
         }
 
         render();
