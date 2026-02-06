@@ -1,205 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sondhi Point System | Pro Terminal</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-</head>
-<body>
+<script>
+    let db = JSON.parse(localStorage.getItem('sondhi_v23')) || [];
+    let activeIdx = null;
 
-    <div id="dashboard">
-        <header class="main-header">
-            <div class="header-container">
-                <div>
-                    <h1 class="brand-name">Sondhi Point System</h1>
-                    <p class="brand-subtitle">Admin Terminal</p>
-                </div>
-                <div class="action-buttons">
-                    <button onclick="toggleModal('regModal')" class="btn-primary">+ New Member</button>
-                </div>
-            </div>
-        </header>
+    function render() {
+        const grid = document.getElementById('customerGrid');
+        const q = document.getElementById('searchBar').value.toLowerCase();
+        grid.innerHTML = '';
+        db.forEach((u, i) => {
+            if(u.name.toLowerCase().includes(q) || u.phone.includes(q)) {
+                const t = getTier(u.totalEarned);
+                grid.innerHTML += `<div class="card" onclick="openProfile(${i})">
+                    <div class="card-header"><span class="tier-badge ${t.c}">${t.n}</span><span style="color:#444; font-size:10px;">ID: ${i+1}</span></div>
+                    <h3>${u.name}</h3>
+                    <div class="stats"><div><small>POINTS</small><p>${u.pts.toFixed(0)}</p></div>
+                    <button onclick="openTrans(${i}, event)" class="btn-mini">💰 PURCHASE</button></div></div>`;
+            }
+        });
+        localStorage.setItem('sondhi_v23', JSON.stringify(db));
+    }
 
-        <main class="content">
-            <div class="search-container">
-                <input id="searchBar" onkeyup="render()" type="text" placeholder="Search by name or phone...">
-            </div>
-            <div id="customerGrid" class="grid"></div>
-        </main>
-    </div>
+    function openProfile(i) {
+        activeIdx = i; const u = db[i]; const t = getTier(u.totalEarned);
+        document.getElementById('pName').innerText = u.name;
+        document.getElementById('pAvatar').innerText = u.name[0].toUpperCase();
+        document.getElementById('pPhone').innerText = u.phone;
+        document.getElementById('pPoints').innerText = u.pts.toFixed(0);
+        document.getElementById('pSpent').innerText = (u.totalSpent || 0).toLocaleString();
+        document.getElementById('pTier').className = `tier-badge ${t.c}`;
+        document.getElementById('pTier').innerText = t.n;
 
-    <div id="profileModal" class="modal-overlay hidden">
-        <div class="modal-content profile-view">
-            <div class="profile-header">
-                <span id="pTier" class="tier-badge"></span>
-                <button onclick="toggleModal('profileModal')" class="close-x">×</button>
-            </div>
-            
-            <div class="profile-main">
-                <div id="pAvatar" class="avatar-circle">S</div>
-                <h2 id="pName" class="gold-text"></h2>
-                <p id="pPhone" class="phone-sub"></p>
-            </div>
+        const statusDiv = document.getElementById('rewardStatus');
+        const actionDiv = document.getElementById('redeemAction');
 
-            <div class="profile-stats-grid">
-                <div class="stat-box">
-                    <small>WALLET BALANCE</small>
-                    <p id="pPoints" class="gold-text"></p>
-                </div>
-                <div class="stat-box">
-                    <small>TOTAL SPENT</small>
-                    <p id="pSpent"></p>
-                </div>
-            </div>
-
-            <div class="redemption-zone">
-                <h3 class="section-title" style="margin-top:0">Reward Eligibility</h3>
-                <div id="rewardStatus"></div>
-                <div id="redeemAction" style="margin-top:10px;"></div>
-            </div>
-
-            <div class="custom-reward-zone" style="background:#000; padding:15px; border-radius:12px; border:1px solid #333; margin-bottom:20px;">
-                <h3 class="section-title" style="margin-top:0">Custom Point Adjustment</h3>
-                <div style="display:flex; gap:5px; margin-bottom:5px;">
-                    <input id="customPtAmt" type="number" placeholder="+/- Points" style="flex:1">
-                    <input id="customPtNote" type="text" placeholder="Note (e.g. Bday)" style="flex:2">
-                </div>
-                <button onclick="applyCustomPoints()" class="btn-mini" style="width:100%; border-color:var(--gold);">Apply Adjustment</button>
-            </div>
-
-            <h3 class="section-title">History Log</h3>
-            <div class="history-list" id="pHistory"></div>
-            
-            <button onclick="toggleModal('profileModal')" class="btn-primary full-width">Close Profile</button>
-        </div>
-    </div>
-
-    <div id="transModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 class="gold-text">Add Purchase</h2>
-            <p style="color:#666; font-size:12px;">Customer earns 10% points</p>
-            <input id="billAmount" type="number" placeholder="Enter Bill Amount">
-            <button onclick="processPurchase()" class="btn-primary full-width">Confirm</button>
-            <button onclick="toggleModal('transModal')" class="btn-text">Cancel</button>
-        </div>
-    </div>
-
-    <div id="regModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 class="gold-text">Register Member</h2>
-            <input id="nName" type="text" placeholder="Full Name">
-            <input id="nPhone" type="text" placeholder="Phone Number">
-            <button onclick="addCust()" class="btn-primary full-width">Join System</button>
-            <button onclick="toggleModal('regModal')" class="btn-text">Cancel</button>
-        </div>
-    </div>
-
-    <script>
-        let db = JSON.parse(localStorage.getItem('sondhi_v22')) || [];
-        let activeIdx = null;
-
-        function getTier(totalEarned) {
-            if (totalEarned >= 2000) return { n: 'Platinum', c: 'tier-platinum' };
-            if (totalEarned >= 1000) return { n: 'Gold', c: 'tier-gold' };
-            return { n: 'Silver', c: 'tier-silver' };
+        // UPDATED REDEMPTION LOGIC: SUBTRACT COST, KEEP REMAINDER
+        if (u.pts >= 1500) {
+            statusDiv.innerHTML = `<p style="color:var(--gold); font-size:13px;">✅ <b>Level 2:</b> 10% Discount (Cost: 1500 pts)</p>`;
+            actionDiv.innerHTML = `
+                <button onclick="confirmRedeem(1500, '10%')" class="btn-primary full-width">Redeem 1500 pts</button>
+                <button onclick="sendWhatsApp()" class="btn-text" style="color:#25D366;">✉️ Notify via WhatsApp</button>`;
+        } else if (u.pts >= 1000) {
+            statusDiv.innerHTML = `<p style="color:#f9e29c; font-size:13px;">✅ <b>Level 1:</b> 5% Discount (Cost: 1000 pts)</p>`;
+            actionDiv.innerHTML = `
+                <button onclick="confirmRedeem(1000, '5%')" class="btn-secondary full-width">Redeem 1000 pts</button>
+                <button onclick="sendWhatsApp()" class="btn-text" style="color:#25D366;">✉️ Notify via WhatsApp</button>`;
+        } else {
+            statusDiv.innerHTML = `<p style="color:#555; font-size:12px;">❌ 1,000 pts needed for 5%<br>❌ 1,500 pts needed for 10%</p>
+            <button onclick="sendWhatsApp()" class="btn-text" style="color:#25D366;">✉️ Send Balance Update</button>`;
+            actionDiv.innerHTML = ``;
         }
 
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+        document.getElementById('pHistory').innerHTML = u.history.slice().reverse().map(h => `
+            <div class="history-item"><span>${h.date} <br><small>${h.type}</small></span>
+            <span class="${h.amt >= 0 ? 'text-gold' : 'text-red'}">${h.amt > 0 ? '+' : ''}${h.amt.toFixed(0)}</span></div>`).join('');
+        toggleModal('profileModal');
+    }
 
-        function render() {
-            const grid = document.getElementById('customerGrid');
-            const q = document.getElementById('searchBar').value.toLowerCase();
-            grid.innerHTML = '';
-            db.forEach((u, i) => {
-                if(u.name.toLowerCase().includes(q) || u.phone.includes(q)) {
-                    const t = getTier(u.totalEarned);
-                    grid.innerHTML += `<div class="card" onclick="openProfile(${i})">
-                        <div class="card-header"><span class="tier-badge ${t.c}">${t.n}</span><span style="color:#444; font-size:10px;">ID: ${i+1}</span></div>
-                        <h3>${u.name}</h3>
-                        <div class="stats"><div><small>POINTS</small><p>${u.pts.toFixed(0)}</p></div>
-                        <button onclick="openTrans(${i}, event)" class="btn-mini">💰 PURCHASE</button></div></div>`;
-                }
+    function confirmRedeem(cost, label) {
+        if(confirm(`Redeem ${cost} points for a ${label} discount?`)) {
+            db[activeIdx].pts -= cost;
+            db[activeIdx].history.push({
+                date: new Date().toLocaleDateString(), 
+                type: `Used ${label} Reward`, 
+                amt: -cost
             });
-            localStorage.setItem('sondhi_v22', JSON.stringify(db));
+            render(); 
+            openProfile(activeIdx); // Refresh to show remaining points
         }
+    }
 
-        function openProfile(i) {
-            activeIdx = i; const u = db[i]; const t = getTier(u.totalEarned);
-            document.getElementById('pName').innerText = u.name;
-            document.getElementById('pAvatar').innerText = u.name[0].toUpperCase();
-            document.getElementById('pPhone').innerText = u.phone;
-            document.getElementById('pPoints').innerText = u.pts.toFixed(0);
-            document.getElementById('pSpent').innerText = (u.totalSpent || 0).toLocaleString();
-            document.getElementById('pTier').className = `tier-badge ${t.c}`;
-            document.getElementById('pTier').innerText = t.n;
+    function sendWhatsApp() {
+        const u = db[activeIdx];
+        const msg = `Hello ${u.name}! Your current balance at Sondhi System is ${u.pts.toFixed(0)} points. Visit us again soon!`;
+        const url = `https://wa.me/${u.phone}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+    }
 
-            const statusDiv = document.getElementById('rewardStatus');
-            const actionDiv = document.getElementById('redeemAction');
-            if (u.pts >= 1500) {
-                let discount = u.pts * 0.10;
-                statusDiv.innerHTML = `<p style="color:var(--gold); font-size:13px;">✅ <b>Level 2:</b> 10% Discount Available</p>`;
-                actionDiv.innerHTML = `<button onclick="confirmRedeem(${discount})" class="btn-primary full-width">Redeem for ${discount.toFixed(0)} Off</button>`;
-            } else if (u.pts >= 1000) {
-                let discount = u.pts * 0.05;
-                statusDiv.innerHTML = `<p style="color:#f9e29c; font-size:13px;">✅ <b>Level 1:</b> 5% Discount Available</p>`;
-                actionDiv.innerHTML = `<button onclick="confirmRedeem(${discount})" class="btn-secondary full-width">Redeem for ${discount.toFixed(0)} Off</button>`;
-            } else {
-                statusDiv.innerHTML = `<p style="color:#555; font-size:12px;">❌ 1,000 pts needed for 5%<br>❌ 1,500 pts needed for 10%</p>`;
-                actionDiv.innerHTML = ``;
-            }
-
-            document.getElementById('pHistory').innerHTML = u.history.slice().reverse().map(h => `
-                <div class="history-item"><span>${h.date} <br><small>${h.type}</small></span>
-                <span class="${h.amt >= 0 ? 'text-gold' : 'text-red'}">${h.amt > 0 ? '+' : ''}${h.amt.toFixed(0)}</span></div>`).join('');
-            toggleModal('profileModal');
-        }
-
-        function applyCustomPoints() {
-            const amt = parseFloat(document.getElementById('customPtAmt').value);
-            const note = document.getElementById('customPtNote').value || 'Adjustment';
-            if(!isNaN(amt)) {
-                db[activeIdx].pts += amt;
-                if(amt > 0) db[activeIdx].totalEarned += amt;
-                db[activeIdx].history.push({date: new Date().toLocaleDateString(), type: note, amt: amt});
-                document.getElementById('customPtAmt').value = '';
-                document.getElementById('customPtNote').value = '';
-                render(); openProfile(activeIdx);
-            }
-        }
-
-        function confirmRedeem(val) {
-            if(confirm(`Use ALL points for ${val.toFixed(0)} discount?`)) {
-                const ptsUsed = db[activeIdx].pts;
-                db[activeIdx].pts = 0;
-                db[activeIdx].history.push({date: new Date().toLocaleDateString(), type: `Redeemed Reward`, amt: -ptsUsed});
-                render(); toggleModal('profileModal');
-            }
-        }
-
-        function openTrans(i, e) { e.stopPropagation(); activeIdx = i; toggleModal('transModal'); }
-
-        function processPurchase() {
-            const bill = parseFloat(document.getElementById('billAmount').value);
-            if(bill > 0) {
-                const earned = bill * 0.10;
-                db[activeIdx].pts += earned; db[activeIdx].totalEarned += earned;
-                db[activeIdx].totalSpent = (db[activeIdx].totalSpent || 0) + bill;
-                db[activeIdx].history.push({date: new Date().toLocaleDateString(), type: `Purchase`, amt: earned});
-                document.getElementById('billAmount').value = ''; toggleModal('transModal'); render();
-            }
-        }
-
-        function addCust() {
-            const n = document.getElementById('nName').value; const p = document.getElementById('nPhone').value;
-            if(n && p) {
-                db.push({name: n, phone: p, pts: 0, totalEarned: 0, totalSpent: 0, history: [{date: new Date().toLocaleDateString(), type: 'Joined', amt: 0}]});
-                document.getElementById('nName').value = ''; document.getElementById('nPhone').value = '';
-                toggleModal('regModal'); render();
-            }
-        }
-        render();
-    </script>
-</body>
-</html>
+    // ... (Keep existing getTier, addCust, and processPurchase functions)
+</script>
