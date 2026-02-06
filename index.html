@@ -3,83 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sondhi Club | Premium Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sondhi Point System | Luxury Terminal</title>
+    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
-        .tier-silver { background: linear-gradient(135deg, #bdc3c7, #2c3e50); color: white; }
-        .tier-gold { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; }
-        .tier-platinum { background: linear-gradient(135deg, #8e44ad, #3498db); color: white; }
-    </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen text-slate-900">
+<body>
 
     <div id="dashboard">
-        <header class="sticky top-0 z-40 glass border-b border-slate-200 p-4">
-            <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <header class="main-header">
+            <div class="header-container">
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tighter italic">SONDHI CLUB</h1>
-                    <p class="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">Member Management</p>
+                    <h1 class="brand-name">Sondhi Point System</h1>
+                    <p class="brand-subtitle">Executive Terminal</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="exportToExcel()" class="p-2 hover:bg-slate-100 rounded-xl transition">📊</button>
-                    <button onclick="toggleModal()" class="bg-black text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-xl shadow-black/10 hover:scale-105 transition active:scale-95">
-                        + New Member
-                    </button>
+                <div class="action-buttons">
+                    <button onclick="toggleBulk()" class="btn-secondary">📢 Broadcast</button>
+                    <button onclick="toggleModal()" class="btn-primary">+ New Member</button>
                 </div>
             </div>
         </header>
 
-        <main class="max-w-6xl mx-auto p-6">
-            <div class="relative mb-10">
-                <input id="searchBar" onkeyup="render()" type="text" placeholder="Search by name or mobile number..." 
-                       class="w-full bg-white border border-slate-200 pl-12 pr-4 py-5 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-lg">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-30">🔍</span>
+        <main class="content">
+            <div class="search-container">
+                <input id="searchBar" onkeyup="render()" type="text" placeholder="Search customer...">
             </div>
-
-            <div id="customerGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="customerGrid" class="grid"></div>
         </main>
     </div>
 
-    <div id="profileView" class="hidden min-h-screen bg-white">
-        <nav class="p-4 border-b flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-md z-50">
-            <button onclick="closeProfile()" class="h-10 w-10 flex items-center justify-center hover:bg-slate-100 rounded-full text-xl transition">←</button>
-            <span class="font-bold text-sm tracking-widest uppercase opacity-50">Member Profile</span>
-            <button id="delBtn" class="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition">DELETE</button>
-        </nav>
-        
-        <div id="profileBody" class="max-w-2xl mx-auto p-8"></div>
+    <div id="transModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="gold-text">New Purchase</h2>
+            <p id="custDisplayName" style="color: #888;"></p>
+            <div class="input-group">
+                <label style="font-size: 12px; color: var(--gold);">ENTER BILL AMOUNT</label>
+                <input id="billAmount" type="number" placeholder="e.g. 5000">
+            </div>
+            <button onclick="processPurchase()" class="btn-primary full-width">Add Points</button>
+            <button onclick="closeTrans()" class="btn-text">Cancel</button>
+        </div>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="toggleModal()"></div>
-        <div class="relative bg-white w-full max-w-md rounded-[32px] p-8 shadow-2xl">
-            <h2 class="text-2xl font-black mb-2">Join the Club</h2>
-            <p class="text-slate-400 text-sm mb-8">Register a new customer to start giving points.</p>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold uppercase ml-1 text-slate-400">Customer Name</label>
-                    <input id="nName" type="text" class="w-full bg-slate-50 border-0 p-4 rounded-2xl focus:ring-2 focus:ring-black outline-none">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold uppercase ml-1 text-slate-400">Mobile Number</label>
-                    <input id="nPhone" type="text" class="w-full bg-slate-50 border-0 p-4 rounded-2xl focus:ring-2 focus:ring-black outline-none">
-                </div>
-            </div>
-            
-            <button onclick="addCust()" class="w-full bg-black text-white py-4 rounded-2xl font-bold mt-8 hover:shadow-lg transition active:scale-95">Register Customer</button>
+    <div id="historyModal" class="modal-overlay hidden">
+        <div class="modal-content wide">
+            <h2 id="histName" class="gold-text">Activity Log</h2>
+            <div class="history-list" id="historyContainer"></div>
+            <button onclick="closeHistory()" class="btn-primary full-width">Close</button>
+        </div>
+    </div>
+
+    <div id="regModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="gold-text">Register Member</h2>
+            <input id="nName" type="text" placeholder="Full Name">
+            <input id="nPhone" type="text" placeholder="Phone Number">
+            <button onclick="addCust()" class="btn-primary full-width">Create Account</button>
+            <button onclick="toggleModal()" class="btn-text">Cancel</button>
         </div>
     </div>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('sondhi_v5')) || [];
+        let db = JSON.parse(localStorage.getItem('sondhi_v15')) || [];
+        let activeCustIndex = null;
 
-        function getTier(p) {
-            if (p >= 2000) return { n: 'Platinum', c: 'tier-platinum' };
-            if (p >= 1000) return { n: 'Gold', c: 'tier-gold' };
+        // POINT CONFIGURATION: 1 Point for every 10 Currency Units
+        // Example: 1000 Spent = 100 Points
+        const POINT_RATE = 0.10; 
+
+        function getTier(totalPts) {
+            if (totalPts >= 2000) return { n: 'Platinum', c: 'tier-platinum' };
+            if (totalPts >= 1000) return { n: 'Gold', c: 'tier-gold' };
             return { n: 'Silver', c: 'tier-silver' };
         }
 
@@ -87,113 +80,98 @@
             const grid = document.getElementById('customerGrid');
             const q = document.getElementById('searchBar').value.toLowerCase();
             grid.innerHTML = '';
-
             db.forEach((u, i) => {
                 if(u.name.toLowerCase().includes(q) || u.phone.includes(q)) {
-                    const t = getTier(u.pts);
+                    const t = getTier(u.totalEarned || 0);
                     grid.innerHTML += `
-                        <div onclick="viewProfile(${i})" class="group bg-white p-6 rounded-[28px] border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all cursor-pointer relative overflow-hidden">
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="${t.c} text-[9px] font-black uppercase px-2.5 py-1 rounded-lg shadow-sm">${t.n}</div>
-                                <div class="h-10 w-10 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">→</div>
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="tier-badge ${t.c}">${t.n}</span>
+                                <button onclick="showHistory(${i})" class="btn-mini">📜 Logs</button>
                             </div>
-                            <h3 class="text-xl font-extrabold text-slate-800">${u.name}</h3>
-                            <p class="text-slate-400 text-sm mb-6">${u.phone}</p>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-black text-slate-900">${u.pts}</span>
-                                <span class="text-xs font-bold text-slate-300 uppercase">Points</span>
+                            <h3>${u.name}</h3>
+                            <p class="phone">${u.phone}</p>
+                            <div class="stats">
+                                <div><small>WALLET</small><p>${u.pts.toFixed(0)}</p></div>
+                                <div><small>TOTAL SPENT</small><p>${(u.totalSpent || 0).toLocaleString()}</p></div>
+                            </div>
+                            <div class="card-actions">
+                                <button onclick="openTrans(${i})" class="btn-primary" style="width: 100%;">💰 NEW PURCHASE</button>
+                                <button onclick="redeemPoints(${i})" class="btn-secondary">Redeem</button>
                             </div>
                         </div>
                     `;
                 }
             });
-            localStorage.setItem('sondhi_v5', JSON.stringify(db));
+            localStorage.setItem('sondhi_v15', JSON.stringify(db));
         }
 
-        function viewProfile(i) {
-            const u = db[i];
-            const t = getTier(u.pts);
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('profileView').classList.remove('hidden');
-            document.getElementById('delBtn').onclick = () => { if(confirm('Delete customer?')) { db.splice(i,1); closeProfile(); } };
-
-            document.getElementById('profileBody').innerHTML = `
-                <div class="text-center mb-10">
-                    <div class="w-24 h-24 bg-slate-100 rounded-[32px] mx-auto flex items-center justify-center text-4xl mb-6 shadow-inner">👤</div>
-                    <h1 class="text-4xl font-black tracking-tight">${u.name}</h1>
-                    <p class="text-slate-400 font-medium">${u.phone}</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mb-10">
-                    <div class="p-6 rounded-[32px] ${t.c} text-center shadow-lg shadow-blue-500/20">
-                        <p class="text-[10px] font-black uppercase opacity-60 mb-1">Points Balance</p>
-                        <p class="text-4xl font-black">${u.pts}</p>
-                    </div>
-                    <div class="p-6 rounded-[32px] bg-slate-50 border border-slate-100 text-center">
-                        <p class="text-[10px] text-slate-400 font-black uppercase mb-1">Redeem Value</p>
-                        <p class="text-4xl font-black text-slate-800">₹${(u.pts * 0.5).toFixed(0)}</p>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 p-8 rounded-[32px] text-white mb-10 shadow-2xl">
-                    <h3 class="text-sm font-bold mb-4 flex items-center gap-2"><span>⚡</span> Quick Actions</h3>
-                    <input id="actionAmt" type="number" placeholder="Enter amount..." class="w-full bg-white/10 border-0 p-4 rounded-2xl text-white outline-none focus:ring-2 focus:ring-blue-500 mb-4">
-                    <div class="flex gap-3">
-                        <button onclick="updPts(${i}, 'add')" class="flex-1 bg-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-500 transition">Add Points</button>
-                        <button onclick="updPts(${i}, 'use')" class="flex-1 bg-white/10 py-4 rounded-2xl font-bold hover:bg-white/20 transition">Redeem</button>
-                    </div>
-                </div>
-
-                <h3 class="font-black text-xs uppercase tracking-[0.2em] text-slate-300 mb-6">Activity Timeline</h3>
-                <div class="space-y-4">
-                    ${u.history.slice().reverse().map(h => `
-                        <div class="flex justify-between items-center p-5 rounded-2xl border border-slate-50 hover:bg-slate-50 transition">
-                            <div><p class="font-bold text-sm">${h.type}</p><p class="text-[10px] text-slate-400">${h.date}</p></div>
-                            <p class="font-black ${h.type === 'Earned' ? 'text-green-500' : 'text-red-500'}">${h.type === 'Earned' ? '+' : '-'}${h.p}</p>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+        function openTrans(i) {
+            activeCustIndex = i;
+            document.getElementById('custDisplayName').innerText = "Customer: " + db[i].name;
+            document.getElementById('transModal').classList.remove('hidden');
         }
 
-        function updPts(i, mode) {
-            const v = parseInt(document.getElementById('actionAmt').value);
-            if(!v) return;
-            if(mode === 'use' && db[i].pts < v) { alert('Not enough points!'); return; }
-            
-            db[i].pts += (mode === 'add' ? v : -v);
-            db[i].history.push({date: new Date().toLocaleDateString(), type: mode === 'add' ? 'Earned' : 'Redeemed', p: v});
-            viewProfile(i);
-        }
+        function closeTrans() { document.getElementById('transModal').classList.add('hidden'); }
 
-        function closeProfile() {
-            document.getElementById('dashboard').classList.remove('hidden');
-            document.getElementById('profileView').classList.add('hidden');
-            render();
-        }
-
-        function toggleModal() { document.getElementById('modal').classList.toggle('hidden'); }
-
-        function addCust() {
-            const n = document.getElementById('nName').value;
-            const p = document.getElementById('nPhone').value;
-            if(n && p) {
-                db.push({name: n, phone: p, pts: 0, history: [{date: new Date().toLocaleDateString(), type: 'Joined Club', p: 0}]});
-                document.getElementById('nName').value = '';
-                document.getElementById('nPhone').value = '';
-                toggleModal();
+        function processPurchase() {
+            const amount = parseFloat(document.getElementById('billAmount').value);
+            if(amount > 0) {
+                const earned = amount * POINT_RATE;
+                db[activeCustIndex].pts += earned;
+                db[activeCustIndex].totalEarned += earned;
+                db[activeCustIndex].totalSpent = (db[activeCustIndex].totalSpent || 0) + amount;
+                
+                db[activeCustIndex].history.push({
+                    date: new Date().toLocaleString(),
+                    type: `Purchase (Amt: ${amount})`,
+                    amt: earned
+                });
+                
+                document.getElementById('billAmount').value = '';
+                closeTrans();
                 render();
             }
         }
 
-        function exportToExcel() {
-            let csv = "Name,Phone,Points\n" + db.map(u => `${u.name},${u.phone},${u.pts}`).join("\n");
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'sondhi_club_members.csv'; a.click();
+        function redeemPoints(i) {
+            const amount = prompt("How many points to redeem?");
+            if(amount && amount <= db[i].pts) {
+                db[i].pts -= amount;
+                db[i].history.push({
+                    date: new Date().toLocaleString(),
+                    type: 'Redemption',
+                    amt: -amount
+                });
+                render();
+            } else {
+                alert("Insufficient points or invalid amount.");
+            }
         }
 
+        // Logic for showHistory, addCust, toggleModal remains same as previous version...
+        function showHistory(i) {
+            const u = db[i];
+            document.getElementById('histName').innerText = u.name + "'s History";
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = u.history.slice().reverse().map(h => `
+                <div class="history-item">
+                    <span>${h.date} <br><small>${h.type}</small></span>
+                    <span class="${h.amt >= 0 ? 'text-gold' : 'text-red'}">${h.amt > 0 ? '+' : ''}${h.amt.toFixed(0)}</span>
+                </div>
+            `).join('');
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+        function closeHistory() { document.getElementById('historyModal').classList.add('hidden'); }
+        function toggleModal() { document.getElementById('regModal').classList.toggle('hidden'); }
+        function addCust() {
+            const n = document.getElementById('nName').value;
+            const p = document.getElementById('nPhone').value;
+            if(n && p) {
+                db.push({name: n, phone: p, pts: 0, totalEarned: 0, totalSpent: 0, history: [{date: new Date().toLocaleString(), type: 'Welcome', amt: 0}]});
+                render(); toggleModal();
+            }
+        }
         render();
     </script>
 </body>
