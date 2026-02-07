@@ -3,246 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sondhi Pro Terminal | 2026</title>
+    <title>Sondhi Loyalty Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --gold: #d4af37;
-            --gold-bright: #f9e29c;
-            --black-bg: #0a0a0a;
-            --black-card: #141414;
-            --border: #2a2a2a;
-        }
-
+        :root { --gold: #d4af37; --gold-bright: #f9e29c; --black-bg: #0a0a0a; --black-card: #141414; --border: #2a2a2a; }
         body { background-color: var(--black-bg); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
-
-        /* HEADER */
         .main-header { background: #000; padding: 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
         .header-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .brand-name { font-weight: 800; letter-spacing: 2px; color: var(--gold); margin: 0; text-transform: uppercase; }
-        .brand-subtitle { font-size: 10px; color: #666; margin: 0; text-transform: uppercase; }
-
-        /* UI ELEMENTS */
+        .nav-tabs { display: flex; gap: 10px; background: #111; padding: 5px; border-radius: 10px; border: 1px solid var(--border); }
+        .nav-link { padding: 8px 15px; border-radius: 8px; font-size: 12px; cursor: pointer; border: none; background: none; color: #666; font-weight: 600; }
+        .nav-link.active { background: var(--gold); color: #000; }
+        .view-section { display: none; max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        .view-section.active { display: block; }
         .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #000; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-        .btn-secondary { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; border-radius: 6px; cursor: pointer; }
-        .btn-mini { background: #222; border: 1px solid #333; color: var(--gold); padding: 8px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; }
-        .full-width { width: 100%; margin-top: 10px; }
-
-        /* GRID & CARDS */
-        .search-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
-        .search-container input { width: 100%; background: var(--black-card); border: 1px solid var(--border); padding: 15px; border-radius: 12px; color: #fff; outline: none; box-sizing: border-box; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto 50px; padding: 0 20px; }
-        .card { background: var(--black-card); border: 1px solid var(--border); padding: 20px; border-radius: 15px; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-color: var(--gold); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        
-        /* TIER BADGES */
-        .tier-badge { font-size: 9px; font-weight: 900; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; }
-        .tier-platinum { background: var(--gold); color: #000; }
-        .tier-gold { border: 1px solid var(--gold); color: var(--gold); }
-        .tier-silver { border: 1px solid #444; color: #888; }
-
-        /* MODALS */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .btn-outline { background: none; border: 1px solid #444; color: #888; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--black-card); border: 1px solid var(--border); padding: 20px; border-radius: 15px; cursor: pointer; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .modal-content { background: #111; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--border); position: relative; }
         .hidden { display: none; }
-        .close-x { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #555; font-size: 24px; cursor: pointer; }
-
-        /* PROFILE SPECIFICS */
-        .avatar-circle { width: 60px; height: 60px; background: var(--gold); color: #000; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; }
-        .profile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .stat-box { background: #000; padding: 15px; border-radius: 12px; border: 1px solid #222; text-align: center; }
-        .redemption-zone { background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px dashed #444; margin-bottom: 15px; }
-        .history-list { max-height: 150px; overflow-y: auto; background: #000; border-radius: 10px; margin-top: 10px; }
-        .history-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #111; font-size: 11px; }
-        
         input { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; margin-bottom: 10px; border-radius: 8px; box-sizing: border-box; }
+        .history-list { max-height: 120px; overflow-y: auto; background: #000; border-radius: 10px; margin-top: 15px; font-size: 11px; }
+        .history-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #111; }
         .gold-text { color: var(--gold); }
-        .text-red { color: #ff4d4d; }
-        .btn-text { background: none; border: none; color: #555; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div id="dashboard">
-        <header class="main-header">
-            <div class="header-container">
-                <div>
-                    <h1 class="brand-name">Sondhi System</h1>
-                    <p class="brand-subtitle">VIP Member Management</p>
-                </div>
-                <button onclick="toggleModal('regModal')" class="btn-primary">+ New Member</button>
+    <header class="main-header">
+        <div class="header-container">
+            <h1 style="color:var(--gold); margin:0; font-size:20px;">SONDHI</h1>
+            <div class="nav-tabs">
+                <button class="nav-link active" onclick="switchView('adminView', this)">Admin</button>
+                <button class="nav-link" onclick="switchView('memberView', this)">Member Check</button>
             </div>
-        </header>
-
-        <div class="search-container">
-            <input id="searchBar" onkeyup="render()" type="text" placeholder="Search by name or phone...">
         </div>
+    </header>
+
+    <section id="adminView" class="view-section active">
+        <div style="display:flex; justify-content: space-between; margin-bottom: 20px;">
+            <h2>Admin Terminal</h2>
+            <button onclick="toggleModal('regModal')" class="btn-primary">+ New Member</button>
+        </div>
+        <input id="searchBar" type="text" placeholder="Search name or phone..." onkeyup="render()">
         <div id="customerGrid" class="grid"></div>
-    </div>
+    </section>
+
+    <section id="memberView" class="view-section">
+        <div style="max-width:400px; margin: 40px auto; text-align:center; background:var(--black-card); padding:30px; border-radius:20px; border:1px solid var(--gold);">
+            <h2 class="gold-text">My Points</h2>
+            <input id="checkPhone" type="text" placeholder="Enter Phone Number">
+            <button onclick="checkMyPoints()" class="btn-primary" style="width:100%">Check Now</button>
+            <div id="checkResult" class="hidden">
+                <h1 id="mPoints" style="font-size:50px; color:var(--gold); margin:20px 0 0 0;">0</h1>
+                <p id="mName" style="font-weight:bold;"></p>
+            </div>
+        </div>
+    </section>
 
     <div id="profileModal" class="modal-overlay hidden">
-        <div class="modal-content" style="text-align: center;">
-            <button onclick="toggleModal('profileModal')" class="close-x">×</button>
-            <span id="pTier" class="tier-badge"></span>
-            <div class="avatar-circle" id="pAvatar">S</div>
-            <h2 id="pName" class="gold-text" style="margin:5px 0;"></h2>
-            <p id="pPhone" style="color:#666; margin-bottom:20px;"></p>
-
-            <div class="profile-stats-grid">
-                <div class="stat-box"><small>POINTS</small><p id="pPoints" class="gold-text" style="font-size:24px; margin:0; font-weight:800;"></p></div>
-                <div class="stat-box"><small>TOTAL SPENT</small><p id="pSpent" style="font-size:24px; margin:0; font-weight:800;"></p></div>
-            </div>
-
-            <div class="redemption-zone">
-                <div id="rewardStatus"></div>
-                <div id="redeemAction"></div>
-            </div>
-
-            <div style="background:#000; padding:15px; border-radius:12px; margin-bottom:15px;">
-                <small style="color:#555;">CUSTOM ADJUSTMENT</small>
-                <div style="display:flex; gap:5px; margin-top:5px;">
-                    <input id="customPtAmt" type="number" placeholder="+/- Pts" style="margin:0;">
-                    <button onclick="applyCustomPoints()" class="btn-mini">Apply</button>
-                </div>
-            </div>
-
-            <div class="history-list" id="pHistory"></div>
-        </div>
-    </div>
-
-    <div id="transModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2 class="gold-text">Add Purchase</h2>
-            <input id="billAmount" type="number" placeholder="Bill Amount">
-            <button onclick="processPurchase()" class="btn-primary full-width">Add 10% Points</button>
-            <button onclick="toggleModal('transModal')" class="btn-text full-width">Cancel</button>
+            <button onclick="toggleModal('profileModal')" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#555; font-size:20px;">×</button>
+            <div id="viewMode">
+                <h2 id="pName" class="gold-text" style="margin:0;"></h2>
+                <p id="pPhone" style="color:#666; font-size:14px;"></p>
+                <button onclick="enableEdit()" class="btn-outline">Edit Info</button>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin:15px 0;">
+                    <div style="background:#000; padding:10px; border-radius:10px;"><small>POINTS</small><br><b id="pPoints" style="font-size:20px;"></b></div>
+                </div>
+                <div id="redeemArea"></div>
+                <div class="history-list" id="pHistory"></div>
+            </div>
+            <div id="editMode" class="hidden">
+                <h3 class="gold-text">Edit Member</h3>
+                <input id="editName" type="text" placeholder="Full Name">
+                <input id="editPhone" type="text" placeholder="Phone Number">
+                <button onclick="saveEdit()" class="btn-primary" style="width:100%">Save Changes</button>
+                <button onclick="disableEdit()" style="background:none; border:none; color:#555; margin-top:10px; width:100%;">Cancel</button>
+            </div>
         </div>
     </div>
 
     <div id="regModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2 class="gold-text">New Registration</h2>
+            <h2 class="gold-text">Register</h2>
             <input id="nName" type="text" placeholder="Customer Name">
-            <input id="nPhone" type="text" placeholder="WhatsApp Number">
-            <button onclick="addCust()" class="btn-primary full-width">Register</button>
-            <button onclick="toggleModal('regModal')" class="btn-text full-width">Cancel</button>
+            <input id="nPhone" type="text" placeholder="Phone Number">
+            <button onclick="addCust()" class="btn-primary" style="width:100%">Create Account</button>
         </div>
     </div>
 
-    <script>
-        let db = JSON.parse(localStorage.getItem('sondhi_v24')) || [];
-        let activeIdx = null;
+    <div id="transModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="gold-text">Add Bill</h2>
+            <input id="billAmount" type="number" placeholder="Bill Amount">
+            <button onclick="processPurchase()" class="btn-primary" style="width:100%">Confirm (10% Pts)</button>
+        </div>
+    </div>
 
-        function getTier(totalEarned) {
-            if (totalEarned >= 2000) return { n: 'Platinum', c: 'tier-platinum' };
-            if (totalEarned >= 1000) return { n: 'Gold', c: 'tier-gold' };
-            return { n: 'Silver', c: 'tier-silver' };
-        }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+        / ==========================================
+        // // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-        function render() {
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC_YAda8x-SNJUyxBW3cJR04gghbFBs2WA",
+  authDomain: "sondhi-loyelty.firebaseapp.com",
+  projectId: "sondhi-loyelty",
+  storageBucket: "sondhi-loyelty.firebasestorage.app",
+  messagingSenderId: "852491541170",
+  appId: "1:852491541170:web:09e87f5bc337a052d1c7ab",
+  measurementId: "G-Y7E5PZBFP7"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        // =============================/=============
+        const firebaseConfig = {
+            apiKey: "YOUR_KEY",
+            authDomain: "YOUR_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // ==========================================
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        let customers = [];
+        window.activePhone = null;
+
+        onValue(ref(db, 'customers'), (snapshot) => {
+            const data = snapshot.val();
+            customers = data ? Object.values(data) : [];
+            render();
+        });
+
+        window.render = function() {
             const grid = document.getElementById('customerGrid');
             const q = document.getElementById('searchBar').value.toLowerCase();
             grid.innerHTML = '';
-            db.forEach((u, i) => {
+            customers.forEach((u) => {
                 if(u.name.toLowerCase().includes(q) || u.phone.includes(q)) {
-                    const t = getTier(u.totalEarned);
-                    grid.innerHTML += `<div class="card" onclick="openProfile(${i})">
-                        <div class="card-header"><span class="tier-badge ${t.c}">${t.n}</span></div>
+                    grid.innerHTML += `<div class="card" onclick="openProfile('${u.phone}')">
                         <h3 style="margin:0;">${u.name}</h3>
-                        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px;">
-                            <div><small style="color:var(--gold); font-size:10px;">POINTS</small><p style="margin:0; font-size:20px; font-weight:800;">${u.pts.toFixed(0)}</p></div>
-                            <button onclick="openTrans(${i}, event)" class="btn-mini">💰 ADD BILL</button>
-                        </div>
+                        <p class="gold-text" style="font-size:20px; font-weight:800; margin:10px 0;">${u.pts.toFixed(0)} <small style="color:#555;">PTS</small></p>
+                        <button onclick="openTrans('${u.phone}', event)" class="btn-primary" style="width:100%; padding:8px;">Add Bill</button>
                     </div>`;
-            }
+                }
             });
-            localStorage.setItem('sondhi_v24', JSON.stringify(db));
-        }
+        };
 
-        function openProfile(i) {
-            activeIdx = i; const u = db[i]; const t = getTier(u.totalEarned);
+        window.addCust = function() {
+            const n = document.getElementById('nName').value;
+            const p = document.getElementById('nPhone').value;
+            if(n && p) {
+                set(ref(db, 'customers/' + p), { name: n, phone: p, pts: 0, history: [{date: new Date().toLocaleDateString(), type: 'Joined', amt: 0}]});
+                toggleModal('regModal');
+            }
+        };
+
+        window.openProfile = function(phone) {
+            window.activePhone = phone;
+            const u = customers.find(c => c.phone === phone);
             document.getElementById('pName').innerText = u.name;
-            document.getElementById('pAvatar').innerText = u.name[0];
             document.getElementById('pPhone').innerText = u.phone;
             document.getElementById('pPoints').innerText = u.pts.toFixed(0);
-            document.getElementById('pSpent').innerText = (u.totalSpent || 0).toLocaleString();
-            document.getElementById('pTier').className = `tier-badge ${t.c}`;
-            document.getElementById('pTier').innerText = t.n;
-
-            const statusDiv = document.getElementById('rewardStatus');
-            const actionDiv = document.getElementById('redeemAction');
-
-            if (u.pts >= 1500) {
-                statusDiv.innerHTML = `<p style="color:var(--gold); margin:0;">Eligible for 10% Discount</p>`;
-                actionDiv.innerHTML = `<button onclick="confirmRedeem(1500, '10%')" class="btn-primary full-width">Use 1500 Points</button>`;
-            } else if (u.pts >= 1000) {
-                statusDiv.innerHTML = `<p style="color:var(--gold-bright); margin:0;">Eligible for 5% Discount</p>`;
-                actionDiv.innerHTML = `<button onclick="confirmRedeem(1000, '5%')" class="btn-secondary full-width">Use 1000 Points</button>`;
-            } else {
-                statusDiv.innerHTML = `<small style="color:#555;">Need 1,000 pts for rewards</small>`;
-                actionDiv.innerHTML = ``;
-            }
-            
-            // Notification Button
-            actionDiv.innerHTML += `<button onclick="sendWhatsApp()" class="btn-text" style="color:#25D366; margin-top:10px; display:block; width:100%;">✉️ WhatsApp Balance</button>`;
-
-            document.getElementById('pHistory').innerHTML = u.history.slice().reverse().map(h => `
-                <div class="history-item"><span>${h.date}<br>${h.type}</span>
-                <span class="${h.amt >= 0 ? 'gold-text' : 'text-red'}">${h.amt > 0 ? '+' : ''}${h.amt.toFixed(0)}</span></div>`).join('');
+            const area = document.getElementById('redeemArea');
+            if(u.pts >= 1000) area.innerHTML = `<button onclick="redeem(1000, 'Reward')" class="btn-primary" style="width:100%">Redeem Reward (1000 pts)</button>`;
+            else area.innerHTML = `<p style="font-size:12px; color:#555;">Points needed: ${1000 - u.pts}</p>`;
+            document.getElementById('pHistory').innerHTML = u.history.slice().reverse().map(h => `<div class="history-item"><span>${h.date} ${h.type}</span><b>${h.amt >= 0 ? '+' : ''}${h.amt.toFixed(0)}</b></div>`).join('');
+            disableEdit();
             toggleModal('profileModal');
-        }
+        };
 
-        function confirmRedeem(cost, label) {
-            if(confirm(`Use ${cost} points for ${label} discount? Remaining points will stay.`)) {
-                db[activeIdx].pts -= cost;
-                db[activeIdx].history.push({date: new Date().toLocaleDateString(), type: `Redeemed ${label}`, amt: -cost});
-                render(); openProfile(activeIdx);
+        window.enableEdit = function() {
+            const u = customers.find(c => c.phone === window.activePhone);
+            document.getElementById('editName').value = u.name;
+            document.getElementById('editPhone').value = u.phone;
+            document.getElementById('viewMode').classList.add('hidden');
+            document.getElementById('editMode').classList.remove('hidden');
+        };
+
+        window.disableEdit = function() {
+            document.getElementById('viewMode').classList.remove('hidden');
+            document.getElementById('editMode').classList.add('hidden');
+        };
+
+        window.saveEdit = function() {
+            const newName = document.getElementById('editName').value;
+            const newPhone = document.getElementById('editPhone').value;
+            const oldUser = customers.find(c => c.phone === window.activePhone);
+            if(newPhone !== window.activePhone) {
+                set(ref(db, 'customers/' + newPhone), {...oldUser, name: newName, phone: newPhone});
+                remove(ref(db, 'customers/' + window.activePhone));
+            } else {
+                update(ref(db, 'customers/' + window.activePhone), {name: newName});
             }
-        }
+            toggleModal('profileModal');
+        };
 
-        function applyCustomPoints() {
-            const amt = parseFloat(document.getElementById('customPtAmt').value);
-            if(!isNaN(amt)) {
-                db[activeIdx].pts += amt;
-                if(amt > 0) db[activeIdx].totalEarned += amt;
-                db[activeIdx].history.push({date: new Date().toLocaleDateString(), type: 'Admin Adj.', amt: amt});
-                document.getElementById('customPtAmt').value = '';
-                render(); openProfile(activeIdx);
-            }
-        }
+        window.openTrans = function(phone, e) { e.stopPropagation(); window.activePhone = phone; toggleModal('transModal'); };
 
-        function sendWhatsApp() {
-            const u = db[activeIdx];
-            const msg = `As salamu Alai kum ${u.name}!​Welcome to you on behalf of Sondhi Shoe Gallery. 
-            ​For purchasing your valuable goods, you have received a total of ${u.pts.toFixed(0)} points. Visit us again soon. *Thank you*!`;
-            window.open(`https://wa.me/${u.phone}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        function openTrans(i, e) { e.stopPropagation(); activeIdx = i; toggleModal('transModal'); }
-
-        function processPurchase() {
+        window.processPurchase = function() {
             const bill = parseFloat(document.getElementById('billAmount').value);
+            const u = customers.find(c => c.phone === window.activePhone);
             if(bill > 0) {
                 const earned = bill * 0.10;
-                db[activeIdx].pts += earned; db[activeIdx].totalEarned += earned;
-                db[activeIdx].totalSpent = (db[activeIdx].totalSpent || 0) + bill;
-                db[activeIdx].history.push({date: new Date().toLocaleDateString(), type: `Purchase`, amt: earned});
-                document.getElementById('billAmount').value = ''; toggleModal('transModal'); render();
+                update(ref(db, 'customers/' + u.phone), {
+                    pts: u.pts + earned,
+                    history: [...u.history, {date: new Date().toLocaleDateString(), type: 'Purchase', amt: earned}]
+                });
+                toggleModal('transModal');
             }
-        }
+        };
 
-        function addCust() {
-            const n = document.getElementById('nName').value; const p = document.getElementById('nPhone').value;
-            if(n && p) {
-                db.push({name: n, phone: p, pts: 0, totalEarned: 0, totalSpent: 0, history: [{date: new Date().toLocaleDateString(), type: 'Joined', amt: 0}]});
-                document.getElementById('nName').value = ''; document.getElementById('nPhone').value = '';
-                toggleModal('regModal'); render();
-            }
-        }
-        render();
+        window.redeem = function(cost, label) {
+            const u = customers.find(c => c.phone === window.activePhone);
+            update(ref(db, 'customers/' + u.phone), {
+                pts: u.pts - cost,
+                history: [...u.history, {date: new Date().toLocaleDateString(), type: 'Redeemed', amt: -cost}]
+            });
+            toggleModal('profileModal');
+        };
+
+        window.checkMyPoints = function() {
+            const p = document.getElementById('checkPhone').value;
+            const u = customers.find(c => c.phone === p);
+            if(u) {
+                document.getElementById('checkResult').classList.remove('hidden');
+                document.getElementById('mPoints').innerText = u.pts.toFixed(0);
+                document.getElementById('mName').innerText = u.name;
+            } else alert("Number not found!");
+        };
+
+        window.switchView = function(view, btn) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+            document.getElementById(view).classList.add('active');
+            btn.classList.add('active');
+        };
+
+        window.toggleModal = function(id) { document.getElementById(id).classList.toggle('hidden'); };
     </script>
 </body>
 </html>
