@@ -3,95 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sondhi Loyalty Hub</title>
+    <title>Sondhi Shoe Point | Cloud Loyalty</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --gold-bright: #f9e29c; --black-bg: #0a0a0a; --black-card: #141414; --border: #2a2a2a; }
-        body { background-color: var(--black-bg); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
-        .main-header { background: #000; padding: 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        .header-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .nav-tabs { display: flex; gap: 10px; background: #111; padding: 5px; border-radius: 10px; border: 1px solid var(--border); }
-        .nav-link { padding: 8px 15px; border-radius: 8px; font-size: 12px; cursor: pointer; border: none; background: none; color: #666; font-weight: 600; }
-        .nav-link.active { background: var(--gold); color: #000; }
-        .view-section { display: none; max-width: 1100px; margin: 30px auto; padding: 0 20px; }
-        .view-section.active { display: block; }
-        .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #000; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: var(--black-card); border: 1px solid var(--border); padding: 20px; border-radius: 15px; cursor: pointer; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: #111; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--border); position: relative; }
+        :root { 
+            --gold: #d4af37; --diamond: #00f2ff; --platinum: #e5e4e2;
+            --black-bg: #050505; --black-card: #111; --border: #222;
+        }
+        body { background: var(--black-bg); color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
+        
+        /* Header */
+        .main-header { background: #000; padding: 15px 20px; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 1000; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Tier Glowing Effects */
+        .card { background: var(--black-card); border: 1px solid var(--border); padding: 20px; border-radius: 15px; position: relative; transition: 0.3s; }
+        .tier-diamond { border-color: var(--diamond); box-shadow: 0 0 20px rgba(0,242,255,0.2); }
+        .tier-gold { border-color: var(--gold); box-shadow: 0 0 20px rgba(212,175,55,0.2); }
+        .tier-platinum { border-color: var(--platinum); border-style: dashed; }
+        
+        /* Controls */
+        .btn { padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; }
+        .btn-gold { background: var(--gold); color: #000; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: #fff; }
+        input { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        
+        .view-section { display: none; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .active-view { display: block; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .hidden { display: none; }
-        input { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; margin-bottom: 10px; border-radius: 8px; box-sizing: border-box; }
-        .history-list { max-height: 120px; overflow-y: auto; background: #000; border-radius: 10px; margin-top: 15px; font-size: 11px; }
-        .history-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #111; }
-        .gold-text { color: var(--gold); }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <header class="main-header">
         <div class="header-container">
-            <h1 style="color:var(--gold); margin:0; font-size:20px;">SONDHI</h1>
-            <div class="nav-tabs">
-                <button class="nav-link active" onclick="switchView('adminView', this)">Admin</button>
-                <button class="nav-link" onclick="switchView('memberView', this)">Member Check</button>
+            <div class="logo">Sondhi Shoe Point</div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-gold" onclick="enterAdmin()">Admin Access</button>
+                <button class="btn btn-outline" onclick="switchView('memberView')">My Points</button>
             </div>
         </div>
     </header>
 
-    <section id="adminView" class="view-section active">
-        <div style="display:flex; justify-content: space-between; margin-bottom: 20px;">
-            <h2>Admin Terminal</h2>
-            <button onclick="toggleModal('regModal')" class="btn-primary">+ New Member</button>
+    <section id="adminView" class="view-section">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; flex-wrap: wrap; gap:10px;">
+            <h2>Admin Hub</h2>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-outline" onclick="downloadReport()">📥 Export CSV</button>
+                <button class="btn btn-gold" onclick="toggleModal('regModal')">+ Add Member</button>
+            </div>
         </div>
-        <input id="searchBar" type="text" placeholder="Search name or phone..." onkeyup="render()">
+        
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px; margin-bottom:20px;">
+            <input type="text" id="searchBar" placeholder="Search customer name or phone..." onkeyup="render()">
+            <button class="btn btn-outline" onclick="toggleModal('broadcastModal')">📢 Broadcast Update</button>
+        </div>
+
         <div id="customerGrid" class="grid"></div>
     </section>
 
-    <section id="memberView" class="view-section">
-        <div style="max-width:400px; margin: 40px auto; text-align:center; background:var(--black-card); padding:30px; border-radius:20px; border:1px solid var(--gold);">
-            <h2 class="gold-text">My Points</h2>
-            <input id="checkPhone" type="text" placeholder="Enter Phone Number">
-            <button onclick="checkMyPoints()" class="btn-primary" style="width:100%">Check Now</button>
-            <div id="checkResult" class="hidden">
-                <h1 id="mPoints" style="font-size:50px; color:var(--gold); margin:20px 0 0 0;">0</h1>
-                <p id="mName" style="font-weight:bold;"></p>
+    <section id="memberView" class="view-section active-view">
+        <div style="max-width:450px; margin: 40px auto; background:var(--black-card); padding:30px; border-radius:25px; border:1px solid var(--gold); text-align:center;">
+            <h2 style="color:var(--gold);">Customer Portal</h2>
+            <p style="font-size:13px; color:#888;">Enter your mobile to check points & rewards</p>
+            <div style="display:flex; gap:5px; margin-top:20px;">
+                <span style="padding:12px; background:#222; border-radius:8px; font-weight:bold;">+880</span>
+                <input id="checkPhone" type="number" placeholder="1XXXXXXXXX">
+            </div>
+            <button onclick="checkMyPoints()" class="btn btn-gold" style="width:100%; padding:15px; margin-top:10px;">Check Status</button>
+            
+            <div id="checkResult" class="hidden" style="margin-top:30px; padding-top:20px; border-top:1px solid #222;">
+                <div id="tierBadge"></div>
+                <h1 id="mPoints" style="font-size:60px; margin:10px 0; color:var(--gold);">0</h1>
+                <p id="mName" style="font-weight:800; font-size:20px; margin:0;"></p>
+                <p id="mGoal" style="color:#666; font-size:13px; margin-top:10px;"></p>
             </div>
         </div>
     </section>
 
-    <div id="profileModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <button onclick="toggleModal('profileModal')" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#555; font-size:20px;">×</button>
-            <h2 id="pName" class="gold-text" style="margin:0;"></h2>
-            <p id="pPhone" style="color:#666; font-size:14px;"></p>
-            <div style="background:#000; padding:10px; border-radius:10px; margin:15px 0;"><small>TOTAL POINTS</small><br><b id="pPoints" style="font-size:20px;"></b></div>
-            <div class="history-list" id="pHistory"></div>
-        </div>
-    </div>
-
-    <div id="regModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 class="gold-text">Register Member</h2>
+    <div id="regModal" class="modal hidden">
+        <div style="background:#111; padding:30px; border-radius:20px; width:100%; max-width:400px; border:1px solid var(--border);">
+            <h2>New Membership</h2>
             <input id="nName" type="text" placeholder="Full Name">
-            <input id="nPhone" type="text" placeholder="Phone Number">
-            <button onclick="addCust()" class="btn-primary" style="width:100%">Create Account</button>
+            <div style="display:flex; gap:5px;">
+                <span style="padding:12px; background:#222; border-radius:8px; margin-bottom:10px;">+880</span>
+                <input id="nPhone" type="number" placeholder="1XXXXXXXXX">
+            </div>
+            <input id="nEmail" type="email" placeholder="Email Address (Optional)">
+            <button onclick="addCust()" class="btn btn-gold" style="width:100%">Create Cloud Account</button>
+            <button onclick="toggleModal('regModal')" class="btn btn-outline" style="width:100%; margin-top:10px;">Cancel</button>
         </div>
     </div>
 
-    <div id="transModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2 class="gold-text">Add Bill</h2>
-            <input id="billAmount" type="number" placeholder="Enter Amount">
-            <button onclick="processPurchase()" class="btn-primary" style="width:100%">Confirm (10% Points)</button>
+    <div id="pointModal" class="modal hidden">
+        <div style="background:#111; padding:30px; border-radius:20px; width:100%; max-width:400px; border:1px solid var(--border);">
+            <h2>Update Points</h2>
+            <label style="font-size:12px; color:#888;">Spend Amount (Taka)</label>
+            <input id="billAmt" type="number" placeholder="Enter Taka amount">
+            <p style="font-size:11px; color:var(--gold);">Logic: 1000tk=100pts | 2000tk=250pts</p>
+            
+            <div style="margin:20px 0; border-top:1px solid #222; padding-top:15px;">
+                <label style="font-size:12px; color:#888;">Admin: Add Direct Points</label>
+                <input id="directPts" type="number" placeholder="Manual bonus points">
+            </div>
+            <button onclick="processPoints()" class="btn btn-gold" style="width:100%">Save & Notify WhatsApp</button>
+            <button onclick="toggleModal('pointModal')" class="btn btn-outline" style="width:100%; margin-top:10px;">Close</button>
+        </div>
+    </div>
+
+    <div id="broadcastModal" class="modal hidden">
+        <div style="background:#111; padding:30px; border-radius:20px; width:100%; max-width:400px; border:1px solid var(--border);">
+            <h2>Broadcast Updates</h2>
+            <textarea id="broadcastMsg" style="width:100%; height:100px; background:#1a1a1a; color:#fff; border-radius:8px; padding:10px; border:1px solid #333; font-family:inherit;" placeholder="What's new at Sondhi Shoe Point?"></textarea>
+            <button onclick="sendBroadcast()" class="btn btn-gold" style="width:100%; margin-top:10px;">Broadcast via WhatsApp</button>
+            <button onclick="toggleModal('broadcastModal')" class="btn btn-outline" style="width:100%; margin-top:10px;">Close</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        // ✅ YOUR UPDATED CONFIG FROM THE PHOTO
         const firebaseConfig = {
             apiKey: "AIzaSyC_YAda8x-SNJUyxBW3cJRO4gghbFBs2WA",
             authDomain: "sondhi-loyalty.firebaseapp.com",
@@ -99,8 +135,7 @@
             projectId: "sondhi-loyalty",
             storageBucket: "sondhi-loyalty.firebasestorage.app",
             messagingSenderId: "852491541170",
-            appId: "1:852491541170:web:09e87f5bc337a052d1c7ab",
-            measurementId: "G-Y7E5PZBFP7"
+            appId: "1:852491541170:web:09e87f5bc337a052d1c7ab"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -108,6 +143,7 @@
         let customers = [];
         window.activePhone = null;
 
+        // Sync with Firebase Cloud
         onValue(ref(db, 'customers'), (snapshot) => {
             const data = snapshot.val();
             customers = data ? Object.values(data) : [];
@@ -118,69 +154,125 @@
             const grid = document.getElementById('customerGrid');
             const q = document.getElementById('searchBar').value.toLowerCase();
             grid.innerHTML = '';
-            customers.forEach((u) => {
+            
+            customers.forEach(u => {
                 if(u.name.toLowerCase().includes(q) || u.phone.includes(q)) {
-                    grid.innerHTML += `<div class="card" onclick="openProfile('${u.phone}')">
-                        <h3 style="margin:0;">${u.name}</h3>
-                        <p class="gold-text" style="font-size:20px; font-weight:800; margin:10px 0;">${u.pts.toFixed(0)} <small style="color:#555;">PTS</small></p>
-                        <button onclick="openTrans('${u.phone}', event)" class="btn-primary" style="width:100%; padding:8px;">Add Bill</button>
-                    </div>`;
+                    let tier = u.pts >= 5000 ? 'diamond' : (u.pts >= 2000 ? 'gold' : 'platinum');
+                    grid.innerHTML += `
+                        <div class="card tier-${tier}">
+                            <span class="badge" style="background:${tier==='diamond'?'var(--diamond)':tier==='gold'?'var(--gold)':'#555'}">${tier}</span>
+                            <h3 style="margin:10px 0 5px 0;">${u.name}</h3>
+                            <p style="color:#666; font-size:12px; margin:0;">+880${u.phone}</p>
+                            <div style="font-size:32px; font-weight:800; margin:15px 0;">${Math.floor(u.pts)} <small style="font-size:12px; color:#444;">PTS</small></div>
+                            <div style="display:flex; gap:5px;">
+                                <button onclick="openPointModal('${u.phone}')" class="btn btn-gold" style="flex:1; font-size:11px;">ADD POINTS</button>
+                                <button onclick="editUser('${u.phone}')" class="btn btn-outline" style="font-size:11px;">EDIT</button>
+                                <button onclick="deleteUser('${u.phone}')" class="btn btn-outline" style="color:#ff4444; font-size:11px;">DEL</button>
+                            </div>
+                        </div>`;
                 }
             });
         };
 
+        window.enterAdmin = function() {
+            const pass = prompt("Enter Admin Password:");
+            if(pass === "sondhi2026") switchView('adminView');
+            else alert("Incorrect Password");
+        }
+
         window.addCust = function() {
             const n = document.getElementById('nName').value;
             const p = document.getElementById('nPhone').value;
-            if(n && p) {
-                set(ref(db, 'customers/' + p), { name: n, phone: p, pts: 0, history: [{date: new Date().toLocaleDateString(), type: 'Joined', amt: 0}]});
-                toggleModal('regModal');
-            }
+            const e = document.getElementById('nEmail').value || "No Email";
+            if(!n || !p) return alert("Required fields missing");
+            
+            set(ref(db, 'customers/' + p), {
+                name: n, phone: p, email: e, pts: 0, joined: new Date().toLocaleDateString()
+            });
+            toggleModal('regModal');
+            document.getElementById('nName').value = '';
+            document.getElementById('nPhone').value = '';
         };
 
-        window.openProfile = function(phone) {
-            window.activePhone = phone;
-            const u = customers.find(c => c.phone === phone);
-            document.getElementById('pName').innerText = u.name;
-            document.getElementById('pPhone').innerText = u.phone;
-            document.getElementById('pPoints').innerText = u.pts.toFixed(0);
-            document.getElementById('pHistory').innerHTML = u.history.slice().reverse().map(h => `<div class="history-item"><span>${h.date} ${h.type}</span><b>${h.amt >= 0 ? '+' : ''}${h.amt.toFixed(0)}</b></div>`).join('');
-            toggleModal('profileModal');
+        window.openPointModal = (phone) => { 
+            window.activePhone = phone; 
+            document.getElementById('billAmt').value = '';
+            document.getElementById('directPts').value = '';
+            toggleModal('pointModal'); 
         };
 
-        window.openTrans = function(phone, e) { e.stopPropagation(); window.activePhone = phone; toggleModal('transModal'); };
-
-        window.processPurchase = function() {
-            const bill = parseFloat(document.getElementById('billAmount').value);
+        window.processPoints = function() {
+            const bill = parseFloat(document.getElementById('billAmt').value) || 0;
+            const direct = parseFloat(document.getElementById('directPts').value) || 0;
             const u = customers.find(c => c.phone === window.activePhone);
-            if(bill > 0) {
-                const earned = bill * 0.10;
-                update(ref(db, 'customers/' + u.phone), {
-                    pts: u.pts + earned,
-                    history: [...u.history, {date: new Date().toLocaleDateString(), type: 'Purchase', amt: earned}]
-                });
-                toggleModal('transModal');
-            }
+            
+            let earned = direct;
+            if(bill >= 2000) earned += 250;
+            else if(bill >= 1000) earned += 100;
+            
+            const newTotal = (u.pts || 0) + earned;
+            update(ref(db, 'customers/' + u.phone), { pts: newTotal });
+            
+            const msg = `Sondhi Shoe Point: Hello ${u.name}, you earned ${Math.floor(earned)} points! Total: ${Math.floor(newTotal)} pts. 1000pts=5% off | 1500pts=10% off.`;
+            window.open(`https://wa.me/880${u.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            toggleModal('pointModal');
         };
 
         window.checkMyPoints = function() {
             const p = document.getElementById('checkPhone').value;
             const u = customers.find(c => c.phone === p);
+            const res = document.getElementById('checkResult');
             if(u) {
-                document.getElementById('checkResult').classList.remove('hidden');
-                document.getElementById('mPoints').innerText = u.pts.toFixed(0);
+                res.classList.remove('hidden');
+                document.getElementById('mPoints').innerText = Math.floor(u.pts);
                 document.getElementById('mName').innerText = u.name;
-            } else alert("Number not found!");
+                let tier = u.pts >= 5000 ? 'Diamond 💎' : (u.pts >= 2000 ? 'Gold 🏆' : 'Platinum 🥈');
+                document.getElementById('tierBadge').innerHTML = `<span class="badge" style="font-size:16px; color:var(--gold)">${tier} Member</span>`;
+                document.getElementById('mGoal').innerText = u.pts >= 1500 ? "10% Discount Ready!" : (u.pts >= 1000 ? "5% Discount Ready!" : `Need ${1000 - Math.floor(u.pts)} more for a reward.`);
+            } else alert("Number not found in Sondhi records.");
         };
 
-        window.switchView = function(view, btn) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
-            document.getElementById(view).classList.add('active');
-            btn.classList.add('active');
+        window.downloadReport = function() {
+            let csv = "Name,Phone,Email,Points,Tier\n";
+            customers.forEach(u => {
+                let tier = u.pts >= 5000 ? 'Diamond' : (u.pts >= 2000 ? 'Gold' : 'Platinum');
+                csv += `${u.name},880${u.phone},${u.email},${u.pts},${tier}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Sondhi_Loyalty_Data.csv');
+            a.click();
         };
 
-        window.toggleModal = function(id) { document.getElementById(id).classList.toggle('hidden'); };
+        window.sendBroadcast = function() {
+            const msg = document.getElementById('broadcastMsg').value;
+            if(!msg) return;
+            customers.forEach((u, i) => {
+                setTimeout(() => {
+                    window.open(`https://wa.me/880${u.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                }, i * 3000); 
+            });
+        };
+
+        window.editUser = function(phone) {
+            const u = customers.find(c => c.phone === phone);
+            const newName = prompt("Update Name:", u.name);
+            const newEmail = prompt("Update Email:", u.email);
+            if(newName) update(ref(db, 'customers/' + phone), { name: newName, email: newEmail });
+        };
+
+        window.deleteUser = function(phone) {
+            if(confirm("Delete this customer permanently from Cloud?")) remove(ref(db, 'customers/' + phone));
+        };
+
+        window.switchView = (id) => {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active-view'));
+            document.getElementById(id).classList.add('active-view');
+        };
+
+        window.toggleModal = (id) => document.getElementById(id).classList.toggle('hidden');
     </script>
 </body>
 </html>
