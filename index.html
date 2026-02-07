@@ -67,27 +67,17 @@
             <div id="viewMode">
                 <h2 id="pName" class="gold-text" style="margin:0;"></h2>
                 <p id="pPhone" style="color:#666; font-size:14px;"></p>
-                <button onclick="enableEdit()" class="btn-outline">Edit Info</button>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin:15px 0;">
-                    <div style="background:#000; padding:10px; border-radius:10px;"><small>POINTS</small><br><b id="pPoints" style="font-size:20px;"></b></div>
-                </div>
+                <div style="background:#000; padding:10px; border-radius:10px; margin:15px 0;"><small>TOTAL POINTS</small><br><b id="pPoints" style="font-size:20px;"></b></div>
                 <div id="redeemArea"></div>
                 <div class="history-list" id="pHistory"></div>
-            </div>
-            <div id="editMode" class="hidden">
-                <h3 class="gold-text">Edit Member</h3>
-                <input id="editName" type="text" placeholder="Full Name">
-                <input id="editPhone" type="text" placeholder="Phone Number">
-                <button onclick="saveEdit()" class="btn-primary" style="width:100%">Save Changes</button>
-                <button onclick="disableEdit()" style="background:none; border:none; color:#555; margin-top:10px; width:100%;">Cancel</button>
             </div>
         </div>
     </div>
 
     <div id="regModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2 class="gold-text">Register</h2>
-            <input id="nName" type="text" placeholder="Customer Name">
+            <h2 class="gold-text">Register Member</h2>
+            <input id="nName" type="text" placeholder="Full Name">
             <input id="nPhone" type="text" placeholder="Phone Number">
             <button onclick="addCust()" class="btn-primary" style="width:100%">Create Account</button>
         </div>
@@ -96,48 +86,26 @@
     <div id="transModal" class="modal-overlay hidden">
         <div class="modal-content">
             <h2 class="gold-text">Add Bill</h2>
-            <input id="billAmount" type="number" placeholder="Bill Amount">
-            <button onclick="processPurchase()" class="btn-primary" style="width:100%">Confirm (10% Pts)</button>
+            <input id="billAmount" type="number" placeholder="Enter Amount (e.g. 500)">
+            <button onclick="processPurchase()" class="btn-primary" style="width:100%">Confirm (10% Points)</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        / ==========================================
-        // // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyC_YAda8x-SNJUyxBW3cJR04gghbFBs2WA",
-  authDomain: "sondhi-loyelty.firebaseapp.com",
-  projectId: "sondhi-loyelty",
-  storageBucket: "sondhi-loyelty.firebasestorage.app",
-  messagingSenderId: "852491541170",
-  appId: "1:852491541170:web:09e87f5bc337a052d1c7ab",
-  measurementId: "G-Y7E5PZBFP7"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-        // =============================/=============
+        // ✅ INTEGRATED YOUR ACTUAL CONFIG FROM PHOTO
         const firebaseConfig = {
-            apiKey: "YOUR_KEY",
-            authDomain: "YOUR_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_BUCKET",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyC_YAda8x-SNJUyxBW3cJRO4gghbFBs2WA",
+            authDomain: "sondhi-loyalty.firebaseapp.com",
+            databaseURL: "https://sondhi-loyalty-default-rtdb.firebaseio.com",
+            projectId: "sondhi-loyalty",
+            storageBucket: "sondhi-loyalty.firebasestorage.app",
+            messagingSenderId: "852491541170",
+            appId: "1:852491541170:web:09e87f5bc337a052d1c7ab",
+            measurementId: "G-Y7E5PZBFP7"
         };
-        // ==========================================
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -180,37 +148,7 @@ const analytics = getAnalytics(app);
             document.getElementById('pName').innerText = u.name;
             document.getElementById('pPhone').innerText = u.phone;
             document.getElementById('pPoints').innerText = u.pts.toFixed(0);
-            const area = document.getElementById('redeemArea');
-            if(u.pts >= 1000) area.innerHTML = `<button onclick="redeem(1000, 'Reward')" class="btn-primary" style="width:100%">Redeem Reward (1000 pts)</button>`;
-            else area.innerHTML = `<p style="font-size:12px; color:#555;">Points needed: ${1000 - u.pts}</p>`;
             document.getElementById('pHistory').innerHTML = u.history.slice().reverse().map(h => `<div class="history-item"><span>${h.date} ${h.type}</span><b>${h.amt >= 0 ? '+' : ''}${h.amt.toFixed(0)}</b></div>`).join('');
-            disableEdit();
-            toggleModal('profileModal');
-        };
-
-        window.enableEdit = function() {
-            const u = customers.find(c => c.phone === window.activePhone);
-            document.getElementById('editName').value = u.name;
-            document.getElementById('editPhone').value = u.phone;
-            document.getElementById('viewMode').classList.add('hidden');
-            document.getElementById('editMode').classList.remove('hidden');
-        };
-
-        window.disableEdit = function() {
-            document.getElementById('viewMode').classList.remove('hidden');
-            document.getElementById('editMode').classList.add('hidden');
-        };
-
-        window.saveEdit = function() {
-            const newName = document.getElementById('editName').value;
-            const newPhone = document.getElementById('editPhone').value;
-            const oldUser = customers.find(c => c.phone === window.activePhone);
-            if(newPhone !== window.activePhone) {
-                set(ref(db, 'customers/' + newPhone), {...oldUser, name: newName, phone: newPhone});
-                remove(ref(db, 'customers/' + window.activePhone));
-            } else {
-                update(ref(db, 'customers/' + window.activePhone), {name: newName});
-            }
             toggleModal('profileModal');
         };
 
@@ -227,15 +165,6 @@ const analytics = getAnalytics(app);
                 });
                 toggleModal('transModal');
             }
-        };
-
-        window.redeem = function(cost, label) {
-            const u = customers.find(c => c.phone === window.activePhone);
-            update(ref(db, 'customers/' + u.phone), {
-                pts: u.pts - cost,
-                history: [...u.history, {date: new Date().toLocaleDateString(), type: 'Redeemed', amt: -cost}]
-            });
-            toggleModal('profileModal');
         };
 
         window.checkMyPoints = function() {
