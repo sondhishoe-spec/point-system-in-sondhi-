@@ -213,7 +213,8 @@
             const newTotal = (u.pts || 0) + earned;
             update(ref(db, 'customers/' + u.phone), { pts: newTotal });
             
-            const msg = `Sondhi Shoe Point: Hello ${u.name}, you earned ${Math.floor(earned)} points! Total: ${Math.floor(newTotal)} pts. 1000pts=5% off | 1500pts=10% off.`;
+            const msg = `Sondhi Shoe Point: As salamu Alai kum ${u.name}, ​Welcome to you on behalf of Sondhi Shoe Gallery.
+            ​For purchasing your valuable goods. you earned ${Math.floor(earned)} points! Total: ${Math.floor(newTotal)} pts. 1000pts=5% off | 1500pts=10% off.Visit us again soon Thank you`;
             window.open(`https://wa.me/880${u.phone}?text=${encodeURIComponent(msg)}`, '_blank');
             toggleModal('pointModal');
         };
