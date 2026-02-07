@@ -16,7 +16,6 @@
         .view-section { display: none; max-width: 1100px; margin: 30px auto; padding: 0 20px; }
         .view-section.active { display: block; }
         .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #000; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-        .btn-outline { background: none; border: 1px solid #444; color: #888; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 11px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .card { background: var(--black-card); border: 1px solid var(--border); padding: 20px; border-radius: 15px; cursor: pointer; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; }
@@ -64,13 +63,10 @@
     <div id="profileModal" class="modal-overlay hidden">
         <div class="modal-content">
             <button onclick="toggleModal('profileModal')" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#555; font-size:20px;">×</button>
-            <div id="viewMode">
-                <h2 id="pName" class="gold-text" style="margin:0;"></h2>
-                <p id="pPhone" style="color:#666; font-size:14px;"></p>
-                <div style="background:#000; padding:10px; border-radius:10px; margin:15px 0;"><small>TOTAL POINTS</small><br><b id="pPoints" style="font-size:20px;"></b></div>
-                <div id="redeemArea"></div>
-                <div class="history-list" id="pHistory"></div>
-            </div>
+            <h2 id="pName" class="gold-text" style="margin:0;"></h2>
+            <p id="pPhone" style="color:#666; font-size:14px;"></p>
+            <div style="background:#000; padding:10px; border-radius:10px; margin:15px 0;"><small>TOTAL POINTS</small><br><b id="pPoints" style="font-size:20px;"></b></div>
+            <div class="history-list" id="pHistory"></div>
         </div>
     </div>
 
@@ -86,7 +82,7 @@
     <div id="transModal" class="modal-overlay hidden">
         <div class="modal-content">
             <h2 class="gold-text">Add Bill</h2>
-            <input id="billAmount" type="number" placeholder="Enter Amount (e.g. 500)">
+            <input id="billAmount" type="number" placeholder="Enter Amount">
             <button onclick="processPurchase()" class="btn-primary" style="width:100%">Confirm (10% Points)</button>
         </div>
     </div>
@@ -95,7 +91,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        // ✅ INTEGRATED YOUR ACTUAL CONFIG FROM PHOTO
+        // ✅ YOUR UPDATED CONFIG FROM THE PHOTO
         const firebaseConfig = {
             apiKey: "AIzaSyC_YAda8x-SNJUyxBW3cJRO4gghbFBs2WA",
             authDomain: "sondhi-loyalty.firebaseapp.com",
